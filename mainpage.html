@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<head>
+  <style>
+    .main{
+      display: flex;
+      
+    }
+    .main-div {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      justify-content: center;
+    }
+
+    .main-button {
+      border-radius: 5px;
+      width: 8rem;
+      height: 3rem;
+      border: none;
+      background-color: aqua;
+    }
+
+    .modal{
+      background-color: blue;
+      height: 100%;
+      width: 100%;
+      text-align: center;  
+    }
+
+    .modal-container {
+      background: rgba(0,0,0,0.5);
+      display: none;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+
+      
+    }
+    .modal-container.open-modal {
+      display: block;
+    }
+    .modal-container.close-modal {
+      display: none;
+    }
+
+    .modal-description{
+      padding: 30px;
+      position: absolute;
+      background-color: #fff;
+      height: 40%;
+      width: 40%;
+      text-align: center;
+      top:50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+    }
+  </style>
+  
+</head>
+
+<body>
+  <div class="main">
+    <div class="main-div">
+      <button class="main-button" id='modal-one-button'>Click Me!</button>
+    </div>
+    <p id="modalResponse">
+
+    </p>
+  </div>
+  <script>
+    class Modal {
+      constructor(button, configParams){
+        this.config = Object.assign({
+          description: "This is a Modal for any action",
+          onBefore: null,
+          onAfter: null,
+          selectedValue: ""
+        }, configParams)
+
+        this.config.onBefore = this.config.onBefore.bind(this)
+        this.config.onAfter = this.config.onAfter.bind(this)
+        this.clickEvent = button
+        // this.clickedConfirmButton = document.getElementById("modal-1-confirm")
+        
+
+        this.bindEvents()
+
+      }
+
+      bindEvents() {
+        this.clickEvent.addEventListener('click', this.modalOpen.bind(this))
+      }
+      
+      modalOpen = () => {
+        this.render()
+        this.modalDiv = document.getElementById('modal-1')
+        this.modalDescription = document.querySelector(".modal-description");
+
+        if(this.config.onBefore){
+          this.config.onBefore()
+        }
+
+        this.modalDiv.classList.add('open-modal')
+      }
+
+      modalClose = (event) => {
+        this.modalDiv.classList.remove("open-modal")
+
+        this.modalContainer.parentNode.removeChild(this.modalContainer)
+        if(this.config.onAfter){
+          this.config.onAfter()
+        }
+
+        return false  
+      }
+
+      render () {
+        const modalHtml =  this.modalHtmlTemplate()
+
+        const docFrag = document.createDocumentFragment()
+
+        this.modalContainer = document.createElement("div");
+
+        this.modalContainer.innerHTML = modalHtml
+
+        document.body.appendChild(this.modalContainer);
+
+      }
+
+      clickedConfirm () {
+        // event.prevenetDefault()
+        this.config.selectedValue = "Confirm"
+      }
+
+      clickedCancel = (event) => {
+        event.prevenetDefault()
+        this.config.selectedValue = "Cancel"
+      }
+
+
+      modalHtmlTemplate = () => {
+        return `
+          <div class="modal-container" id="modal-1">
+            <div class="modal-description">
+              <p>${this.config.description}</p>
+              <button id="modal-1-confirm" onclick="clickedConfirm()"> Confirm</button>
+              <button id="modal-1-cancel" onclick="clickedCancel()>Cancel</button>
+            </div>
+            
+          </div>
+        `
+      }
+    }
+    
+      const modalOneTrigger = document.getElementById("modal-one-button");
+
+      console.log(modalOneTrigger)
+      const modalOne = new Modal(modalOneTrigger, {
+        description: "We are Opening Modal One",
+        onAfter: () => {
+          const responseParagraph = document.getElementById("modalResponse")
+          responseParagraph.innerHTML = this.config.selectedValue
+        },
+        onBefore: () => {
+
+        }
+      })
+    
+
+    
+
+    // function displayModal(event,modalId) {
+    //   event.preventDefault()
+    //   const modal=document.getElementById(modalId)
+    //   console.log(modal);
+    // }
+  </script>
+</body>
